@@ -1,15 +1,11 @@
 ﻿var invocationCount = 0;
 
 module.exports = async function (context, req) {
-    if (context.executionContext.retryCount !== invocationCount) {
+    debugger;
+    if (context.executionContext.retryContext && (context.executionContext.retryContext.retryCount !== invocationCount
+        || (!(context.executionContext.retryContext.maxRetryCount === 4 || context.executionContext.retryContext.maxRetryCount === 0)))) {
         context.res = {
-            status: 500,
-            body: "executionContext.retryCount=" + context.retryCount + " is not equal to invocationCount=" + invocationCount
-        };
-    } else if (!(context.executionContext.maxRetryCount === 4 || context.executionContext.maxRetryCount === 0)) {
-        context.res = {
-            status: 500,
-            body: "executionContext.maxRetryCount=" + context.maxRetryCount + " is not equal to 0 or 4"
+            status: 500
         };
     } else {
         const reset = req.query.reset;

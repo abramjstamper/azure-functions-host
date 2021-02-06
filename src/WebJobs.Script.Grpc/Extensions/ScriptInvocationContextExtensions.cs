@@ -28,8 +28,11 @@ namespace Microsoft.Azure.WebJobs.Script.Grpc
 
             if (context.ExecutionContext.RetryContext != null)
             {
-                invocationRequest.RetryCount = context.ExecutionContext.RetryContext.RetryCount;
-                invocationRequest.MaxRetryCount = context.ExecutionContext.RetryContext.MaxRetryCount;
+                invocationRequest.RetryContext = new RetryContext()
+                {
+                    RetryCount = context.ExecutionContext.RetryContext.RetryCount,
+                    MaxRetryCount = context.ExecutionContext.RetryContext.MaxRetryCount
+                };
             }
 
             var rpcValueCache = new Dictionary<object, TypedData>();
