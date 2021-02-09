@@ -1,7 +1,6 @@
 ﻿var invocationCount = 0;
 
 module.exports = async function (context, req) {
-    debugger;
     if (context.executionContext.retryContext && (context.executionContext.retryContext.retryCount !== invocationCount
         || (!(context.executionContext.retryContext.maxRetryCount === 4 || context.executionContext.retryContext.maxRetryCount === 0)))) {
         context.res = {
