@@ -2,7 +2,8 @@
 
 module.exports = async function (context, req) {
     if (context.executionContext.retryContext && (context.executionContext.retryContext.retryCount !== invocationCount
-        || (!(context.executionContext.retryContext.maxRetryCount === 2 || context.executionContext.retryContext.maxRetryCount === 0)))) {
+        || !(context.executionContext.retryContext.maxRetryCount === 2 || context.executionContext.retryContext.maxRetryCount === 0)
+        || !(context.executionContext.retryContext.exception.message.includes(errorString)))) {
         context.res = {
             status: 500
         };

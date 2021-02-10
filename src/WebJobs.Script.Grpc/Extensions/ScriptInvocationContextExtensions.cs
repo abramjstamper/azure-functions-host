@@ -6,10 +6,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Azure.WebJobs.Host.Diagnostics;
 using Microsoft.Azure.WebJobs.Script.Description;
 using Microsoft.Azure.WebJobs.Script.Grpc.Messages;
 using Microsoft.Azure.WebJobs.Script.Workers.Rpc;
 using Microsoft.Extensions.Logging;
+using RpcException = Microsoft.Azure.WebJobs.Script.Grpc.Messages.RpcException;
 
 namespace Microsoft.Azure.WebJobs.Script.Grpc
 {
@@ -33,6 +35,16 @@ namespace Microsoft.Azure.WebJobs.Script.Grpc
                     RetryCount = context.ExecutionContext.RetryContext.RetryCount,
                     MaxRetryCount = context.ExecutionContext.RetryContext.MaxRetryCount
                 };
+                // RetryContext.Exception should not be null, check just in case
+                if (context.ExecutionContext.RetryContext.Exception != null)
+                {
+                    invocationRequest.RetryContext.Exception = new RpcException()
+                    {
+                        Message = ExceptionFormatter.GetFormattedException(context.ExecutionContext.RetryContext.Exception), // merge message from InnerException
+                        StackTrace = context.ExecutionContext.RetryContext.Exception.StackTrace,
+                        Source = context.ExecutionContext.RetryContext.Exception.Source
+                    };
+                }
             }
 
             var rpcValueCache = new Dictionary<object, TypedData>();
