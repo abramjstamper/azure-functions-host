@@ -279,7 +279,7 @@ message InvocationRequest {
   // Populates activityId, tracestate and tags from host
   RpcTraceContext trace_context = 5;
 
-  // Current context
+  // Current retry context
   RetryContext retry_context = 6;
 }
 
