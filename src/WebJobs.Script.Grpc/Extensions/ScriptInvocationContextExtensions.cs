@@ -28,24 +28,7 @@ namespace Microsoft.Azure.WebJobs.Script.Grpc
                 TraceContext = GetRpcTraceContext(context.Traceparent, context.Tracestate, context.Attributes, logger),
             };
 
-            if (context.ExecutionContext.RetryContext != null)
-            {
-                invocationRequest.RetryContext = new RetryContext()
-                {
-                    RetryCount = context.ExecutionContext.RetryContext.RetryCount,
-                    MaxRetryCount = context.ExecutionContext.RetryContext.MaxRetryCount
-                };
-                // RetryContext.Exception should not be null, check just in case
-                if (context.ExecutionContext.RetryContext.Exception != null)
-                {
-                    invocationRequest.RetryContext.Exception = new RpcException()
-                    {
-                        Message = ExceptionFormatter.GetFormattedException(context.ExecutionContext.RetryContext.Exception), // merge message from InnerException
-                        StackTrace = context.ExecutionContext.RetryContext.Exception.StackTrace,
-                        Source = context.ExecutionContext.RetryContext.Exception.Source
-                    };
-                }
-            }
+            SetRetryContext(context, invocationRequest);
 
             var rpcValueCache = new Dictionary<object, TypedData>();
 
@@ -141,6 +124,28 @@ namespace Microsoft.Azure.WebJobs.Script.Grpc
             }
 
             return traceContext;
+        }
+
+        internal static void SetRetryContext(ScriptInvocationContext context, InvocationRequest invocationRequest)
+        {
+            if (context.ExecutionContext.RetryContext != null)
+            {
+                invocationRequest.RetryContext = new RetryContext()
+                {
+                    RetryCount = context.ExecutionContext.RetryContext.RetryCount,
+                    MaxRetryCount = context.ExecutionContext.RetryContext.MaxRetryCount
+                };
+                // RetryContext.Exception should not be null, check just in case
+                if (context.ExecutionContext.RetryContext.Exception != null)
+                {
+                    invocationRequest.RetryContext.Exception = new RpcException()
+                    {
+                        Message = ExceptionFormatter.GetFormattedException(context.ExecutionContext.RetryContext.Exception), // merge message from InnerException
+                        StackTrace = context.ExecutionContext.RetryContext.Exception.StackTrace ?? string.Empty,
+                        Source = context.ExecutionContext.RetryContext.Exception.Source ?? string.Empty
+                    };
+                }
+            }
         }
     }
 }
